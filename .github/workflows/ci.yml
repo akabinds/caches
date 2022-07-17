@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [master] 
+  pull_request:
+    branches: [master]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: goto-bus-stop/setup-zig@v1.3.0
+        with:
+          version: master
+      - run: zig ast-check
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: goto-bus-stop/setup-zig@v1.3.0
+        with:
+          version: master
+      - run: zig fmt --check src/*.zig
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: goto-bus-stop/setup-zig@v1.3.0
+        with:
+          version: master
+      - run: zig build test
