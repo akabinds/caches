@@ -1,7 +1,7 @@
 const std = @import("std");
 const raw = @import("raw.zig");
 
-pub fn LRUCache(comptime K: type, comptime V: type) type {
+pub fn LRUCache(comptime K: type, comptime V: anytype) type {
     return raw.RawCache(K, V);
 }
 

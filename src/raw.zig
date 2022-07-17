@@ -1,7 +1,7 @@
 const std = @import("std");
 const mem = std.mem;
 
-pub fn RawCache(comptime K: type, comptime V: type) type {
+pub fn RawCache(comptime K: type, comptime V: anytype) type {
     return struct {
         const Node = struct {
             key: K,
