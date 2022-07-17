@@ -44,20 +44,16 @@ fn RawLRUCache(comptime K: type, comptime V: anytype) type {
         }
 
         /// Clear the contents of the cache without freeing the backing allocation.
-        fn purgeNoFree(self: *Self) void {
-            self.store.clearRetainingCapacity();
-        }
+        fn purgeNoFree(self: *Self) void {}
 
         /// Clear the contents of the cache and free the backing allocation.
-        fn purgeAndFree(self: *Self) void {
-            self.store.clearAndFree();
-        }
+        fn purgeAndFree(self: *Self) void {}
 
         /// Evict an entry from the cache.
         fn evict(self: *Self) void {}
 
         /// Evict an entry from the cache and execute the given callback.
-        fn evictWithCallback(self: *Self, callback: fn(*K, *V)) void {}
+        fn evictWithCallback(self: *Self, callback: fn(*K, *V) -> void) void {}
     };
 }
 
