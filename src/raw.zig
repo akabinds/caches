@@ -33,8 +33,8 @@ pub fn RawCache(comptime K: type, comptime V: anytype) type {
             return self.capacity;
         }
 
-        pub fn store_size(self: *const Self) usize {
-            return self.store.size();
+        pub fn len(self: *const Self) usize {
+            return self.store.count();
         }
     };
 }
