@@ -7,7 +7,7 @@ const page_alloc = std.heap.page_allocator;
 
 /// Provides the base, raw functionality for the different LRU caches.
 /// All LRU caches are fixed size.
-fn RawLRUCache(comptime K: type, comptime V: anytype) type {
+fn RawLRUCache(comptime K: type, comptime V: type) type {
     return struct {
         const EntryNode = struct {
             key: K,
@@ -17,23 +17,30 @@ fn RawLRUCache(comptime K: type, comptime V: anytype) type {
         };
 
         const Self = @This();
+        const Store = std.AutoHashMapUnmanaged(K, V);
 
-        store: type = std.AutoHashMap(K, V),
+        store: Store,
         capacity: usize,
-        head: ?*EntryNode = null,
-        tail: ?*EntryNode = null,
+        head: ?*EntryNode,
+        tail: ?*EntryNode,
         allocator: Allocator,
 
         fn initWithCapacity(capacity: usize, allocator: Allocator) Self {
             assert(capacity > 0);
 
-            return Self{
-                .store = std.AutoHashMap(K, V),
+            return .{
+                .store = Store{},
                 .capacity = capacity,
                 .head = null,
                 .tail = null,
                 .allocator = allocator,
             };
+        }
+
+        fn put(self: *Self, key: K, value: V) Allocator.Error!*EntryNode {
+            _ = self;
+            _ = key;
+            _ = value;
         }
 
         /// Reserve additional capacity for the cache.
@@ -44,20 +51,43 @@ fn RawLRUCache(comptime K: type, comptime V: anytype) type {
         }
 
         /// Clear the contents of the cache without freeing the backing allocation.
-        fn purgeNoFree(self: *Self) void {}
+        fn purgeNoFree(self: *Self) void {
+            return self.store.clearRetainingCapacity();
+        }
 
         /// Clear the contents of the cache and free the backing allocation.
-        fn purgeAndFree(self: *Self) void {}
+        fn purgeAndFree(self: *Self) void {
+            return self.store.clearAndFree(self.allocator);
+        }
 
         /// Evict an entry from the cache.
-        fn evict(self: *Self) void {}
+        fn evict(self: *Self) *EntryNode {
+            _ = self;
+        }
 
         /// Evict an entry from the cache and execute the given callback.
-        fn evictWithCallback(self: *Self, callback: fn(*K, *V) -> void) void {}
+        fn evictWithCallback(self: *Self, callback: fn (*K, *V) void) *EntryNode {
+            _ = self;
+            _ = callback;
+        }
     };
 }
 
 /// An in-memory LRU (Least Recently Used) cache.
-pub fn LRUCache(comptime K: type, comptime V: anytype) type {
+pub fn LRUCache(comptime K: type, comptime V: type) type {
     return RawLRUCache(K, V);
 }
+
+test "new lru" {
+    comptime {
+        var cache = LRUCache(i32, i32).initWithCapacity(10, page_alloc);
+        assert(cache.capacity == 10);
+    }
+}
+
+// test "put" {
+//     comptime {
+//         var cache = LRUCache(i32, i32).initWithCapacity(10, page_alloc);
+//         cache.put(1, 2);
+//     }
+// }
